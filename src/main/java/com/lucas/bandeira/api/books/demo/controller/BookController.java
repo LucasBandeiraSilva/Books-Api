@@ -1,8 +1,9 @@
 package com.lucas.bandeira.api.books.demo.controller;
 
 import com.lucas.bandeira.api.books.demo.entity.Books;
-import com.lucas.bandeira.api.books.demo.record.BookRecordDto;
+import com.lucas.bandeira.api.books.demo.BookRecord.BookRecordDto;
 import com.lucas.bandeira.api.books.demo.repositories.BookRepository;
+import com.lucas.bandeira.api.books.demo.service.BookService;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,51 +20,33 @@ import java.util.Optional;
 public class BookController {
 
     @Autowired
+    private BookService bookService;
+    @Autowired
     private BookRepository bookRepository;
-    @GetMapping
-    public ResponseEntity<List<Books>> getAllBooks(){
-        var books = bookRepository.findAll();
-        if (books.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        }
-        return  ResponseEntity.status(HttpStatus.OK).body(bookRepository.findAll());
-    }
-    @PostMapping
-    public ResponseEntity<Object> newBook(@RequestBody @Valid BookRecordDto bookRecordDto, BindingResult bindingResult){
-        if (bindingResult.hasErrors()){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bindingResult.getAllErrors());
-        }
-        var books = new Books();
-        BeanUtils.copyProperties(bookRecordDto,books);
-        return ResponseEntity.status(HttpStatus.CREATED).body(bookRepository.save(books));
-    }
-    @GetMapping("/{id}")
-    public ResponseEntity<Books>findById(@PathVariable Long id){
-        Optional<Books> booksOptional = bookRepository.findById(id);
-        if (booksOptional.isPresent()){
-            return  ResponseEntity.status(HttpStatus.FOUND).body(booksOptional.get());
-        }else{
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
-    @PutMapping("/{id}")
-    public ResponseEntity<Object>updateBookById(@PathVariable Long id, @RequestBody @Valid BookRecordDto bookRecordDto, BindingResult bindingResult ){
-        Optional<Books> bookOptional = bookRepository.findById(id);
-        if (bookOptional.isPresent()){
-            BeanUtils.copyProperties(bookRecordDto,bookOptional.get());
-            return ResponseEntity.status(HttpStatus.OK).body(bookRepository.save(bookOptional.get()));
-        }else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(bindingResult.getAllErrors());
-        }
 
+    @GetMapping
+    public ResponseEntity<List<Books>> getAllBooks() {
+        return bookService.getAllBooks();
     }
+
+    @PostMapping
+    public ResponseEntity<Object> newBook(@RequestBody @Valid BookRecordDto bookRecordDto, BindingResult bindingResult) {
+        return bookService.newBook(bookRecordDto, bindingResult);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Books> findById(@PathVariable Long id) {
+        return  bookService.findById(id);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Object> updateBookById(@PathVariable Long id, @RequestBody @Valid BookRecordDto bookRecordDto, BindingResult bindingResult) {
+       return bookService.updateBookById(id,bookRecordDto,bindingResult);
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object>DeleteById(@PathVariable Long id){
-        Optional<Books> bookOptional = bookRepository.findById(id);
-        if (bookOptional.isPresent()){
-            return  ResponseEntity.status(HttpStatus.OK).body("BOOK HAS BEEN DELETED!");
-        }
-        return  ResponseEntity.status(HttpStatus.NOT_FOUND).body("BOOK DOES NOT EXIST!");
+    public ResponseEntity<Object> DeleteById(@PathVariable Long id) {
+        return bookService.DeleteById(id);
     }
 }
 
