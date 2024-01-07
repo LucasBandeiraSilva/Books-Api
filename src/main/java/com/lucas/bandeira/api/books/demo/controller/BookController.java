@@ -57,5 +57,13 @@ public class BookController {
         }
 
     }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object>DeleteById(@PathVariable Long id){
+        Optional<Books> bookOptional = bookRepository.findById(id);
+        if (bookOptional.isPresent()){
+            return  ResponseEntity.status(HttpStatus.OK).body("BOOK HAS BEEN DELETED!");
+        }
+        return  ResponseEntity.status(HttpStatus.NOT_FOUND).body("BOOK DOES NOT EXIST!");
+    }
 }
 
