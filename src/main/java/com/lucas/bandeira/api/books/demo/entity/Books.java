@@ -9,12 +9,12 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "tb_books")
+@Table(name = "tb_book")
 public class Books {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private UUID id;
+    private Long id;
     private String title;
     private String author;
-    private int pageNumber;
+    private int totalPages;
 }
